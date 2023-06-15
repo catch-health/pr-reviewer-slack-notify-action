@@ -35,7 +35,7 @@ const run = async (): Promise<void> => {
 
   // route to the appropriate action
   if (eventName === "pull_request") {
-    if (payload.action === "opened" || payload.action === "ready_for_review") {
+    if (payload.action === "opened" || payload.action === "ready_for_review" || || payload.action === "review_requested") {
       console.log("running createInitialMessage::: ", payload);
 
       await createInitialMessage();

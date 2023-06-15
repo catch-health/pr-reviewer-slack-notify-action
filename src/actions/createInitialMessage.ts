@@ -55,6 +55,24 @@ export const createInitialMessage = async (): Promise<string | void> => {
       throw Error("failed to create initial slack message");
     }
 
+    const labelNameToWatchFor = core.getInput("label-name-to-watch-for");
+
+    let hasLabel = false;
+    pull_request.labels.forEach((label: any) => {
+      if (label.name === labelNameToWatchFor) {
+        hasLabel = true;
+      } 
+    });
+
+if(hasLabel){
+    await slackWebClient.reactions.add({
+      channel: channelId,
+      timestamp: prSlackMsg.ts,
+      name: "crab",
+    });
+  }
+  
+
     const ghToken = core.getInput("github-token");
     const octokit = github.getOctokit(ghToken);
     const slackMessageId = `SLACK_MESSAGE_ID:${prSlackMsg.ts}`;

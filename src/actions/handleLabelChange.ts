@@ -28,7 +28,7 @@ export const handleLabelChange = async (): Promise<void> => {
     pull_request.labels.forEach((label: any) => {
       if (label.name === labelNameToWatchFor) {
         hasLabel = true;
-      }
+      } 
     });
 
     if (!hasLabel) {
@@ -42,30 +42,37 @@ export const handleLabelChange = async (): Promise<void> => {
       return user.github_username === pull_request.user.login;
     });
 
-    const plainText = `<@${author.slack_id}>, ${labeler.github_username} added the label ${labelNameToWatchFor} to your PR`;
-    const richText = `<@${author.slack_id}>, *${labeler.github_username}* added the label *${labelNameToWatchFor}* to your PR`;
+    // const plainText = `<@${author.slack_id}>, ${labeler.github_username} added the label ${labelNameToWatchFor} to your PR`;
+    // const richText = `<@${author.slack_id}>, *${labeler.github_username}* added the label *${labelNameToWatchFor}* to your PR`;
     const slackMessageId = await getSlackMessageId();
 
-    await slackWebClient.chat.postMessage({
-      channel: channelId,
-      thread_ts: slackMessageId,
-      text: plainText,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: richText,
-          },
-        },
-      ],
-    });
+    // await slackWebClient.chat.postMessage({
+    //   channel: channelId,
+    //   thread_ts: slackMessageId,
+    //   text: plainText,
+    //   blocks: [
+    //     {
+    //       type: "section",
+    //       text: {
+    //         type: "mrkdwn",
+    //         text: richText,
+    //       },
+    //     },
+    //   ],
+    // });
+
+    // await slackWebClient.reactions.add({
+    //   channel: channelId,
+    //   timestamp: slackMessageId,
+    //   name: "heart_eyes",
+    // });
 
     await slackWebClient.reactions.add({
       channel: channelId,
       timestamp: slackMessageId,
-      name: "heart_eyes",
+      name: "crab",
     });
+  
 
     logger.info('END handleLableChange')
     return;
