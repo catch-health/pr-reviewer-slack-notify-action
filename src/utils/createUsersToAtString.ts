@@ -24,14 +24,14 @@ export const createUsersToAtString = async (
 
   usersToAt.forEach((user) => {
     if (!usersToAtString) {
-      usersToAtString = `<@${user.slack_id.startsWith(
-        'U' ? user.slack_id : 'Hey Team, '
-      )}>`;
+      usersToAtString = `<@${
+        user.slack_id.startsWith('U') ? user.slack_id : 'Hey Team, '
+      }>`;
       return;
     }
-    usersToAtString = `${usersToAtString}, <@${user.slack_id.startsWith(
-      'U' ? user.slack_id : 'Hey Team, '
-    )}>`;
+    usersToAtString = `${usersToAtString}, <@${
+      user.slack_id.startsWith('U') ? user.slack_id : 'Hey Team, '
+    }>`;
     return;
   });
 
