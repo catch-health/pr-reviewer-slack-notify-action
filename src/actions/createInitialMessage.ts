@@ -18,12 +18,13 @@ export const createInitialMessage = async (): Promise<string | void> => {
     if (!pull_request || !repository) return;
 
     const requestedReviewers = pull_request.requested_reviewers ? pull_request.requested_reviewers.map((user: any) => user.login) : [];
-
+    const requestedTeamsReviewers = pull_request.requested_teams ? pull_request.requested_teams : [];
+    logger.info({requestedReviewers, requestedTeamsReviewers});
     //
     // ─── RETURN IF THERE ARE NO REQUESTED REVIEWERS ──────────────────
     //
 
-    if (!requestedReviewers.length) {
+    if (!requestedReviewers.length && !requestedTeamsReviewers.length) {
       return;
     }
 
@@ -33,7 +34,7 @@ export const createInitialMessage = async (): Promise<string | void> => {
     }
 
     // build users to mention string
-    const usersToAtString = await createUsersToAtString(requestedReviewers);
+    const usersToAtString = await createUsersToAtString([...requestedReviewers,...requestedTeamsReviewers]);
 
     // DOCS https://api.slack.com/methods/chat.postMessage
     const text = `${usersToAtString} ${baseMessage}`;
