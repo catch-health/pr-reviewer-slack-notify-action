@@ -18,7 +18,7 @@ export const createInitialMessage = async (): Promise<string | void> => {
     if (!pull_request || !repository) return;
 
     const requestedReviewers = pull_request.requested_reviewers ? pull_request.requested_reviewers.map((user: any) => user.login) : [];
-    const requestedTeamsReviewers = pull_request.requested_teams ? pull_request.requested_teams : [];
+    const requestedTeamsReviewers = pull_request.requested_teams ? pull_request.requested_teams.map((team: any) => team.id) :[];
     logger.info({requestedReviewers, requestedTeamsReviewers});
     //
     // ─── RETURN IF THERE ARE NO REQUESTED REVIEWERS ──────────────────
