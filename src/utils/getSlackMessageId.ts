@@ -3,7 +3,6 @@ import * as core from '@actions/core';
 import { fail } from './fail';
 import { logger } from './logger';
 import { getPrForCommit } from './getPrForCommit';
-import { createInitialMessage } from '../actions/createInitialMessage';
 
 // requires pull_request and repository as inputs bc of the differently shaped action payloads
 export const getSlackMessageId = async (): Promise<string> => {
