@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { clearReactions } from '../utils/clearReactions';
 import { fail } from '../utils/fail';
 import { getPrForCommit } from '../utils/getPrForCommit';
 import { getSlackMessageId } from '../utils/getSlackMessageId';
@@ -15,9 +14,6 @@ export const handleMerge = async (): Promise<void> => {
     const channelId = core.getInput('channel-id');
     const { commits, repository } = github.context.payload;
     const commitSha = commits[0].id;
-    //
-    // ─── CONFIRM COMMIT IS ASSOCIATED WITH A PR IN CLOSED STATE ──────
-    //
 
     const pull_request = await getPrForCommit();
 
@@ -31,15 +27,33 @@ export const handleMerge = async (): Promise<void> => {
 
     const slackMessageId = await getSlackMessageId();
 
-    //
-    // ─── CLEAR REACTIONS ─────────────────────────────────────────────
-    //
+    // const message = await slackWebClient.chat.getMessage({
+    //   channel: channelId,
+    //   thread_ts: slackMessageId,
+    // });
+    // Call the conversations.history method using the built-in WebClient
+    const result = await slackWebClient.conversations.history({
+      channel: channelId,
+      // In a more realistic app, you may store ts data in a db
+      latest: slackMessageId,
+      // Limit results
+      inclusive: true,
+      limit: 1,
+    });
 
-    // await clearReactions(slackMessageId);
+    // There should only be one result (stored in the zeroth index)
+    const messages = result.message! as any[];
+    const message = messages[0];
+    // Print message text
+    console.log(message.text);
 
-    //
-    // ─── POST SHIPPED REACTION AND MESSAGE TO THREAD ─────────────────
-    //
+    const text = `~${message.text}~`;
+
+    await slackWebClient.chat.update({
+      channel: channelId,
+      ts: slackMessageId,
+      text,
+    });
 
     await slackWebClient.reactions.add({
       channel: channelId,
@@ -47,11 +61,11 @@ export const handleMerge = async (): Promise<void> => {
       name: 'git-merged',
     });
 
-    const text = 'This PR has been merged. Deploying to Dev.';
+    const mergeText = 'This PR has been merged. Deploying to Dev.';
     await slackWebClient.chat.postMessage({
       channel: channelId,
       thread_ts: slackMessageId,
-      text,
+      text: mergeText,
     });
 
     logger.info('END handleMerge');
