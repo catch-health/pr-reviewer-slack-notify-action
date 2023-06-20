@@ -1,32 +1,32 @@
-import * as core from "@actions/core";
-import * as github from "@actions/github";
-import { fail } from "../utils/fail";
-import { getEngineersFromS3 } from "../utils/getEngineersFromS3";
-import { getSlackMessageId } from "../utils/getSlackMessageId";
-import { logger } from "../utils/logger";
-import { slackWebClient } from "../utils/slackWebClient";
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { fail } from '../utils/fail';
+import { getEngineersFromS3 } from '../utils/getEngineersFromS3';
+import { getSlackMessageId } from '../utils/getSlackMessageId';
+import { logger } from '../utils/logger';
+import { slackWebClient } from '../utils/slackWebClient';
 
 const reactionMap = {
-  commented: "speech_balloon",
-  approved: "white_check_mark",
-  changes_requested: "octagonal_sign",
+  commented: 'speech_balloon',
+  approved: 'git-approved',
+  changes_requested: 'octagonal_sign',
 };
 
 export const handlePullRequestReview = async (): Promise<void> => {
-  logger.info('START handlePullRequestReview')
+  logger.info('START handlePullRequestReview');
   try {
-    const channelId = core.getInput("channel-id");
+    const channelId = core.getInput('channel-id');
     const slackUsers = await getEngineersFromS3();
     const { action, pull_request, review } = github.context.payload;
 
     // TODO handle more than just submitted PRs
-    if (action !== "submitted") {
+    if (action !== 'submitted') {
       return;
     }
 
     if (!pull_request) {
       throw Error(
-        "No pull_request found in handlePullRequestReivew (github.context.payload)"
+        'No pull_request found in handlePullRequestReivew (github.context.payload)'
       );
     }
 
@@ -59,23 +59,23 @@ export const handlePullRequestReview = async (): Promise<void> => {
     // ─── BUILD MESSAGE ───────────────────────────────────────────────
     //
 
-    const userText = `<@${author.slack_id}>, *${reviewer.github_username}*`;
-    let actionText: string = "";
-    let reactionToAdd: string = "";
+    const userText = `${pull_request.user.login}, *${reviewer.github_username}*`;
+    let actionText: string = '';
+    let reactionToAdd: string = '';
     switch (review.state) {
-      case "changes_requested":
-        actionText = "would like you to change some things in the code";
-        reactionToAdd = reactionMap["changes_requested"];
+      case 'changes_requested':
+        actionText = 'would like you to change some things in the code';
+        reactionToAdd = reactionMap['changes_requested'];
         break;
       // TODO see if getting the review could allow for posting the text that was commented
       // NOTE for reviews where the state is "commented", the comment text is not in the event payload
-      case "commented":
-        actionText = "neither approved or denied your PR, but merely commented";
-        reactionToAdd = reactionMap["commented"];
+      case 'commented':
+        actionText = 'neither approved or denied your PR, but merely commented';
+        reactionToAdd = reactionMap['commented'];
         break;
-      case "approved":
-        actionText = "approved your PR";
-        reactionToAdd = reactionMap["approved"];
+      case 'approved':
+        actionText = 'approved your PR';
+        reactionToAdd = reactionMap['approved'];
         break;
     }
     if (!!review.body) {
@@ -89,9 +89,9 @@ export const handlePullRequestReview = async (): Promise<void> => {
       text,
       blocks: [
         {
-          type: "section",
+          type: 'section',
           text: {
-            type: "mrkdwn",
+            type: 'mrkdwn',
             text,
           },
         },
@@ -119,7 +119,7 @@ export const handlePullRequestReview = async (): Promise<void> => {
     }
 
     if (hasReaction) {
-      logger.info('END handlePullRequestReview: hasReaction')
+      logger.info('END handlePullRequestReview: hasReaction');
       return;
     }
 
@@ -130,8 +130,8 @@ export const handlePullRequestReview = async (): Promise<void> => {
       name: reactionToAdd,
     });
 
-    logger.info('END handlePullRequestReview: new reactions added')
-    return
+    logger.info('END handlePullRequestReview: new reactions added');
+    return;
   } catch (error) {
     fail(error);
     throw error;
