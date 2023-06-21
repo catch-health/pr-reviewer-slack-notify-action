@@ -50,7 +50,7 @@ export const handleMerge = async (slackMessageId: string): Promise<void> => {
     });
 
     // There should only be one result (stored in the zeroth index)
-    const messages = result.message! as any[];
+    const messages = result.messages! as any[];
     if (messages.length === 0) {
       return;
     }
