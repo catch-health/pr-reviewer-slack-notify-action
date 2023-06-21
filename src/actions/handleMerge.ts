@@ -8,7 +8,7 @@ import { slackWebClient } from '../utils/slackWebClient';
 
 // will only run on push to base branch (i.e. staging), so we can assume that a closed state for PR
 // equates to 'merged' (no specific event for 'merged' on PRs)
-export const handleMerge = async (): Promise<void> => {
+export const handleMerge = async (slackMessageId: string): Promise<void> => {
   logger.info('START handleMerge');
   try {
     const channelId = core.getInput('channel-id');
@@ -25,13 +25,21 @@ export const handleMerge = async (): Promise<void> => {
       throw Error(`PR is not closed for commit: ${commitSha}`);
     }
 
-    const slackMessageId = await getSlackMessageId();
-
-    // const message = await slackWebClient.chat.getMessage({
-    //   channel: channelId,
-    //   thread_ts: slackMessageId,
-    // });
     // Call the conversations.history method using the built-in WebClient
+    await slackWebClient.reactions.add({
+      channel: channelId,
+      timestamp: slackMessageId,
+      name: 'git-merged',
+    });
+
+    const mergeText = 'This PR has been merged. Deploying to Dev.';
+    logger.info('START post merged message');
+    await slackWebClient.chat.postMessage({
+      channel: channelId,
+      thread_ts: slackMessageId,
+      text: mergeText,
+    });
+    logger.info('START get message');
     const result = await slackWebClient.conversations.history({
       channel: channelId,
       // In a more realistic app, you may store ts data in a db
@@ -43,6 +51,10 @@ export const handleMerge = async (): Promise<void> => {
 
     // There should only be one result (stored in the zeroth index)
     const messages = result.message! as any[];
+    if (messages.length === 0) {
+      return;
+    }
+    console.log(messages);
     const message = messages[0];
     // Print message text
     console.log(message.text);
@@ -53,19 +65,6 @@ export const handleMerge = async (): Promise<void> => {
       channel: channelId,
       ts: slackMessageId,
       text,
-    });
-
-    await slackWebClient.reactions.add({
-      channel: channelId,
-      timestamp: slackMessageId,
-      name: 'git-merged',
-    });
-
-    const mergeText = 'This PR has been merged. Deploying to Dev.';
-    await slackWebClient.chat.postMessage({
-      channel: channelId,
-      thread_ts: slackMessageId,
-      text: mergeText,
     });
 
     logger.info('END handleMerge');

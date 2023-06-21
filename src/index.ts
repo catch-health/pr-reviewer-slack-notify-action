@@ -81,7 +81,7 @@ const run = async (): Promise<void> => {
     if (isActingOnBaseBranch) {
       console.log('running handleMerge::: ', payload);
 
-      await handleMerge();
+      await handleMerge(slackMessageId);
       return;
     }
 
