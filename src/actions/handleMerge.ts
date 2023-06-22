@@ -65,6 +65,7 @@ export const handleMerge = async (slackMessageId: string): Promise<void> => {
       channel: channelId,
       ts: slackMessageId,
       text,
+      parse: 'none',
     });
     console.log(text);
     console.log(response);
