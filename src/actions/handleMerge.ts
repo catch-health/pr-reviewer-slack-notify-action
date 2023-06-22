@@ -59,14 +59,16 @@ export const handleMerge = async (slackMessageId: string): Promise<void> => {
     // Print message text
     console.log(message.text);
 
-    const text = `~${message.text}~`;
+    const text = `*MERGED:* ~${message.text}~`;
 
-    await slackWebClient.chat.update({
+    const response = await slackWebClient.chat.update({
       channel: channelId,
       ts: slackMessageId,
       text,
     });
-
+    console.log(text);
+    console.log(response);
+    console.log(response.text);
     logger.info('END handleMerge');
     return;
   } catch (error) {

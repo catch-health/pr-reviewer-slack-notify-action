@@ -33,7 +33,7 @@ export const createInitialMessage = async (): Promise<string | void> => {
       return;
     }
 
-    let baseMessage = `*${pull_request.user?.login}* is requesting your review on <${pull_request._links.html.href}|*${pull_request.title}*>`;
+    let baseMessage = `*${pull_request.user?.login}* is requesting your review on <${pull_request._links.html.href}|*PR ${pull_request.number}*> <${pull_request._links.html.href}|*${pull_request.title}*>`;
     if (!!pull_request.body && verbose) {
       baseMessage = `${baseMessage}\n>${pull_request.body}`;
     }
